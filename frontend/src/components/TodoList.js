@@ -28,7 +28,7 @@ function TodoList({ token, updateToken }) {
 const fetchTasks = async () => {
   setIsLoading(true);
   try {
-    const res = await fetch(`http://localhost:8080/tasks`, {
+    const res = await fetch(`https://module-5-u7b1.onrender.com/tasks`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
@@ -79,7 +79,7 @@ const sortTasks = (tasksToSort, sortType, direction) => {
 
 const toggleComplete = async (id) => {
   try {
-    const res = await fetch(`http://localhost:8080/taskComplete/${id}`, {
+    const res = await fetch(`https://module-5-u7b1.onrender.com/taskComplete/${id}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -93,7 +93,7 @@ const toggleComplete = async (id) => {
 const deleteTask = async (id) => {
   if (window.confirm("Are you sure you want to delete this?")) {
     try {
-      const res = await fetch(`http://localhost:8080/task/${id}`, {
+      const res = await fetch(`https://module-5-u7b1.onrender.com/task/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
