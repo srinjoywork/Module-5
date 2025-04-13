@@ -9,6 +9,9 @@ Welcome to **TODO APP**, a modern and intuitive **task management** application 
 
 👉 [View Live Project](https://todolist-ecru-mu.vercel.app/)
 
+## 📌 Demo userid password
+
+👉 User Id - **abc@gmail.com** and Password - **abc@123**
 
 ## 📌 Demo Video of Whole Project
 
