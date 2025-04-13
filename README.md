@@ -1,4 +1,5 @@
-![Yellow and Orange Rectangles Modern Business Retractable Exhibition Banner](https://github.com/user-attachments/assets/e7f1104d-5851-4f79-842c-6796783f5f81)
+![Yellow and Orange Rectangles Modern Business Retractable Exhibition Banner](https://github.com/user-attachments/assets/4aa238e4-bf90-4e0a-80f2-3ddf87122e09)
+
 
 # 🚀 CapsiTech Module 5: TODO APP - A MERN Stack TodoList Application
 
