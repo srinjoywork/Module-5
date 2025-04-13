@@ -136,7 +136,7 @@ return (
           }}
           className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 shadow-md transition font-medium"
         >
-          ➕ Add Task
+          + Add Task
         </button>
 
         <div className="flex items-center space-x-3">
@@ -162,8 +162,11 @@ return (
 
       {/* Task List */}
       {isLoading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : tasks.length === 0 ? (
+  <div className="flex justify-center items-center space-x-2 py-10">
+    <div className="w-5 h-5 border-2 border-t-transparent border-gray-500 rounded-full animate-spin"></div>
+    <p className="text-gray-600 text-base">Loading tasks...</p>
+  </div>
+) : tasks.length === 0 ? (
         <p className="text-center text-gray-500">No tasks available!</p>
       ) : (
         <ul className="space-y-5">
