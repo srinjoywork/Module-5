@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import { TextField, Stack, MessageBar, MessageBarType } from '@fluentui/react';
+import { Stack, MessageBar, MessageBarType } from '@fluentui/react';
 import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 // 🔵 Background Gradient Animation
 const gradientAnimation = keyframes`
@@ -50,51 +52,57 @@ const StyledLink = styled.a`
 `;
 
 function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
+  const [serverError, setServerError] = React.useState('');
+  const [isSuccess, setIsSuccess] = React.useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .matches(/^[A-Za-z\s]+$/, 'Only letters and spaces allowed in name')
+        .required('Name is required'),
+      email: Yup.string()
+        .email('Invalid email address')
+        .required('Email is required'),
+      password: Yup.string()
+        .min(6, 'Password must be at least 6 characters')
+        .required('Password is required'),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password')], 'Passwords must match')
+        .required('Confirm password is required'),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const res = await fetch('https://module-5-u7b1.onrender.com/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(values),
+        });
 
-    if (!name || !email || !password || !confirmPassword) {
-      setError('Fill in all fields');
-      return;
-    }
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Register failed');
+        }
 
-    if (password !== confirmPassword) {
-      setError('The password and password confirmation must be the same.');
-      return;
-    }
-
-    try {
-      const res = await fetch('https://module-5-u7b1.onrender.com/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, confirmPassword }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || 'Register failed');
+        setServerError('');
+        setIsSuccess(true);
+        setTimeout(() => navigate('/login'), 2000);
+      } catch (err) {
+        setServerError(`Error: ${err.message}`);
+        setIsSuccess(false);
       }
-
-      setIsSuccess(true);
-      setError('');
-      setTimeout(() => navigate('/login'), 2000);
-    } catch (err) {
-      setError(`Error: ${err.message}`);
-      setIsSuccess(false);
-    }
-  };
+    },
+  });
 
   return (
     <Background>
-      <StyledForm onSubmit={handleSubmit}>
+      <StyledForm onSubmit={formik.handleSubmit}>
         <Stack
           tokens={{ childrenGap: 15 }}
           styles={{
@@ -108,18 +116,64 @@ function Register() {
           }}
         >
           <h2 style={{ textAlign: 'center' }}>Register</h2>
-          <TextField label="Name" value={name} onChange={(e, val) => setName(val)} required />
-          <TextField label="Email" type="email" value={email} onChange={(e, val) => setEmail(val)} required />
-          <TextField label="Password" type="password" value={password} onChange={(e, val) => setPassword(val)} required />
-          <TextField label="Confirm Password" type="password" value={confirmPassword} onChange={(e, val) => setConfirmPassword(val)} required />
-          
-          {error && (
-            <MessageBar messageBarType={MessageBarType.error} isMultiline={false}>
-              {error}
-            </MessageBar>
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+          />
+          {formik.touched.name && formik.errors.name && (
+            <MessageBar messageBarType={MessageBarType.error}>{formik.errors.name}</MessageBar>
+          )}
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+          />
+          {formik.touched.email && formik.errors.email && (
+            <MessageBar messageBarType={MessageBarType.error}>{formik.errors.email}</MessageBar>
+          )}
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+          />
+          {formik.touched.password && formik.errors.password && (
+            <MessageBar messageBarType={MessageBarType.error}>{formik.errors.password}</MessageBar>
+          )}
+
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formik.values.confirmPassword}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+          />
+          {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+            <MessageBar messageBarType={MessageBarType.error}>{formik.errors.confirmPassword}</MessageBar>
+          )}
+
+          {serverError && (
+            <MessageBar messageBarType={MessageBarType.error}>{serverError}</MessageBar>
           )}
           {isSuccess && (
-            <MessageBar messageBarType={MessageBarType.success} isMultiline={false}>
+            <MessageBar messageBarType={MessageBarType.success}>
               Register was successful! Redirecting to login...
             </MessageBar>
           )}
