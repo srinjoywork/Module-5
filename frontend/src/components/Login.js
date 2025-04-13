@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import { TextField, Stack, MessageBar, MessageBarType } from '@fluentui/react';
+import { Stack, MessageBar, MessageBarType, TextField } from '@fluentui/react';
 import { useNavigate } from 'react-router-dom';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 
 // 🔵 Background Gradient Animation
 const gradientAnimation = keyframes`
@@ -22,8 +24,6 @@ const Background = styled.div`
   align-items: center;
 `;
 
-const StyledForm = styled.form``;
-
 const StyledButton = styled.button`
   background-color: #0078d4;
   color: #ffffff;
@@ -33,6 +33,7 @@ const StyledButton = styled.button`
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
+  width: 100%;
 
   &:hover {
     background-color: #106ebe;
@@ -50,24 +51,23 @@ const StyledLink = styled.a`
 `;
 
 function Login({ updateToken }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
 
-    if (!email || !password) {
-      setError('Fill in all fields');
-      return;
-    }
+  const handleSubmit = async (values, { setSubmitting, setStatus }) => {
+    setStatus(null);
 
     try {
       const res = await fetch('https://module-5-u7b1.onrender.com/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(values),
       });
 
       if (!res.ok) {
@@ -79,53 +79,73 @@ function Login({ updateToken }) {
       updateToken(data.token);
       navigate('/');
     } catch (err) {
-      setError(`Error: ${err.message}`);
+      setStatus(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <Background>
-      <StyledForm onSubmit={handleSubmit}>
-        <Stack
-          tokens={{ childrenGap: 15 }}
-          styles={{
-            root: {
-              width: 300,
-              padding: 20,
-              backgroundColor: 'white',
-              borderRadius: 8,
-              boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-            },
-          }}
-        >
-          <h2 style={{ textAlign: 'center' }}>Login</h2>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e, val) => setEmail(val)}
-            required
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e, val) => setPassword(val)}
-            required
-          />
-          {error && (
-            <MessageBar messageBarType={MessageBarType.error} isMultiline={false}>
-              {error}
-            </MessageBar>
-          )}
-          <StyledButton type="submit">Login</StyledButton>
-          <div style={{ textAlign: 'center', marginTop: 10 }}>
-            <StyledLink onClick={() => navigate('/register')}>
-              Don't have an account yet? Sign up.
-            </StyledLink>
-          </div>
-        </Stack>
-      </StyledForm>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ handleChange, handleBlur, values, touched, errors, isSubmitting, status }) => (
+          <Form>
+            <Stack
+              tokens={{ childrenGap: 15 }}
+              styles={{
+                root: {
+                  width: 300,
+                  padding: 20,
+                  backgroundColor: 'white',
+                  borderRadius: 8,
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                },
+              }}
+            >
+              <h2 style={{ textAlign: 'center' }}>Login</h2>
+
+              <TextField
+                label="Email"
+                name="email"
+                value={values.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                errorMessage={touched.email && errors.email ? errors.email : ''}
+              />
+
+              <TextField
+                label="Password"
+                type="password"
+                name="password"
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                errorMessage={touched.password && errors.password ? errors.password : ''}
+              />
+
+              {status && (
+                <MessageBar messageBarType={MessageBarType.error} isMultiline={false}>
+                  {status}
+                </MessageBar>
+              )}
+
+              <StyledButton type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Logging in...' : 'Login'}
+              </StyledButton>
+
+              <div style={{ textAlign: 'center', marginTop: 10 }}>
+                <StyledLink onClick={() => navigate('/register')}>
+                  Don't have an account yet? Sign up.
+                </StyledLink>
+              </div>
+            </Stack>
+          </Form>
+        )}
+      </Formik>
     </Background>
   );
 }
