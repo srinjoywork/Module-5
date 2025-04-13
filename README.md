@@ -21,6 +21,7 @@ Welcome to **TODO APP**, a modern and intuitive **task management** application 
 - ✅ Secure **signup, login, logout**.
 - ✅ Authentication using **JWT**.
 - ✅ **Zod-based backend validation** for robust input handling.
+- ✅ used **Formik & yup** for validation in frontend also.
 - ✅ Protected routes – only logged-in users can access tasks.
 
 ### ✅ Task Management
