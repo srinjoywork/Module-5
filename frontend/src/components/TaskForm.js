@@ -28,7 +28,7 @@ function TaskForm({ token, task, onClose, onSave }) {
       return;
     }
 
-    const url = task ? `http://localhost:8080/task/${task._id}` : 'http://localhost:8080/tasks';
+    const url = task ? `http://localhost:8080/task/${task._id}` : 'http://localhost:8080/task';
     const method = task ? 'PUT' : 'POST';
 
     try {
