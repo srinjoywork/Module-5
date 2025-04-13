@@ -1,26 +1,53 @@
 import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { TextField, Stack, MessageBar, MessageBarType } from '@fluentui/react';
 import { useNavigate } from 'react-router-dom';
 
-const buttonStyle = {
-  backgroundColor: '#0078d4',
-  color: '#ffffff',
-  border: 'none',
-  padding: '10px 16px',
-  borderRadius: '4px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  transition: 'background-color 0.2s, color 0.2s',
-};
+// 🔵 Background Gradient Animation
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
 
-const buttonHover = {
-  backgroundColor: '#106ebe',
-};
+// 💫 Styled Components
+const Background = styled.div`
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(-45deg, #0078d4, #00bcd4, #5e35b1, #ff4081);
+  background-size: 400% 400%;
+  animation: ${gradientAnimation} 15s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-const buttonActive = {
-  backgroundColor: 'yellow',
-  color: '#0078d4',
-};
+const StyledForm = styled.form``;
+
+const StyledButton = styled.button`
+  background-color: #0078d4;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover {
+    background-color: #106ebe;
+  }
+
+  &:active {
+    background-color: yellow;
+    color: #0078d4;
+  }
+`;
+
+const StyledLink = styled.a`
+  color: #0078d4;
+  cursor: pointer;
+`;
 
 function Register() {
   const [name, setName] = useState('');
@@ -28,7 +55,7 @@ function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [isActive, setIsActive] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -47,9 +74,7 @@ function Register() {
     try {
       const res = await fetch('https://module-5-u7b1.onrender.com/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, confirmPassword }),
       });
 
@@ -58,55 +83,57 @@ function Register() {
         throw new Error(err.message || 'Register failed');
       }
 
-      setError('Register was successful');
+      setIsSuccess(true);
+      setError('');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(`Error: ${err.message}`);
+      setIsSuccess(false);
     }
   };
 
-  const [hover, setHover] = useState(false);
-
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#f3f2f1'
-    }}>
-      <form onSubmit={handleSubmit}>
-        <Stack tokens={{ childrenGap: 15 }} styles={{ root: { width: 300, padding: 20, backgroundColor: 'white', borderRadius: 8, boxShadow: '0 4px 8px rgba(0,0,0,0.1)' } }}>
+    <Background>
+      <StyledForm onSubmit={handleSubmit}>
+        <Stack
+          tokens={{ childrenGap: 15 }}
+          styles={{
+            root: {
+              width: 300,
+              padding: 20,
+              backgroundColor: 'white',
+              borderRadius: 8,
+              boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+            },
+          }}
+        >
           <h2 style={{ textAlign: 'center' }}>Register</h2>
           <TextField label="Name" value={name} onChange={(e, val) => setName(val)} required />
           <TextField label="Email" type="email" value={email} onChange={(e, val) => setEmail(val)} required />
           <TextField label="Password" type="password" value={password} onChange={(e, val) => setPassword(val)} required />
           <TextField label="Confirm Password" type="password" value={confirmPassword} onChange={(e, val) => setConfirmPassword(val)} required />
+          
           {error && (
             <MessageBar messageBarType={MessageBarType.error} isMultiline={false}>
               {error}
             </MessageBar>
           )}
-          <button
-            type="submit"
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            onMouseDown={() => setIsActive(true)}
-            onMouseUp={() => setIsActive(false)}
-            style={{
-              ...buttonStyle,
-              ...(hover ? buttonHover : {}),
-              ...(isActive ? buttonActive : {}),
-            }}
-          >
-            Register
-          </button>
+          {isSuccess && (
+            <MessageBar messageBarType={MessageBarType.success} isMultiline={false}>
+              Register was successful! Redirecting to login...
+            </MessageBar>
+          )}
+
+          <StyledButton type="submit">Register</StyledButton>
+
           <div style={{ textAlign: 'center', marginTop: 10 }}>
-            <a onClick={() => navigate('/login')} style={{ color: '#0078d4', cursor: 'pointer' }}>Already have an account? Log in</a>
+            <StyledLink onClick={() => navigate('/login')}>
+              Already have an account? Log in.
+            </StyledLink>
           </div>
         </Stack>
-      </form>
-    </div>
+      </StyledForm>
+    </Background>
   );
 }
 

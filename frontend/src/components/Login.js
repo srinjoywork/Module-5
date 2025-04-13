@@ -1,33 +1,58 @@
 import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { TextField, Stack, MessageBar, MessageBarType } from '@fluentui/react';
 import { useNavigate } from 'react-router-dom';
 
-const buttonStyle = {
-  backgroundColor: '#0078d4',
-  color: '#ffffff',
-  border: 'none',
-  padding: '10px 16px',
-  borderRadius: '4px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  transition: 'background-color 0.2s, color 0.2s',
-};
+// 🔵 Background Gradient Animation
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
 
-const buttonHover = {
-  backgroundColor: '#106ebe',
-};
+// 💫 Styled Components
+const Background = styled.div`
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(-45deg, #0078d4, #00bcd4, #5e35b1, #ff4081);
+  background-size: 400% 400%;
+  animation: ${gradientAnimation} 15s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-const buttonActive = {
-  backgroundColor: 'yellow',
-  color: '#0078d4',
-};
+const StyledForm = styled.form``;
+
+const StyledButton = styled.button`
+  background-color: #0078d4;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover {
+    background-color: #106ebe;
+  }
+
+  &:active {
+    background-color: yellow;
+    color: #0078d4;
+  }
+`;
+
+const StyledLink = styled.a`
+  color: #0078d4;
+  cursor: pointer;
+`;
 
 function Login({ updateToken }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [hover, setHover] = useState(false);
-  const [isActive, setIsActive] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -59,43 +84,49 @@ function Login({ updateToken }) {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#f3f2f1'
-    }}>
-      <form onSubmit={handleSubmit}>
-        <Stack tokens={{ childrenGap: 15 }} styles={{ root: { width: 300, padding: 20, backgroundColor: 'white', borderRadius: 8, boxShadow: '0 4px 8px rgba(0,0,0,0.1)' } }}>
+    <Background>
+      <StyledForm onSubmit={handleSubmit}>
+        <Stack
+          tokens={{ childrenGap: 15 }}
+          styles={{
+            root: {
+              width: 300,
+              padding: 20,
+              backgroundColor: 'white',
+              borderRadius: 8,
+              boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+            },
+          }}
+        >
           <h2 style={{ textAlign: 'center' }}>Login</h2>
-          <TextField label="Email" type="email" value={email} onChange={(e, val) => setEmail(val)} required />
-          <TextField label="Password" type="password" value={password} onChange={(e, val) => setPassword(val)} required />
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e, val) => setEmail(val)}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e, val) => setPassword(val)}
+            required
+          />
           {error && (
             <MessageBar messageBarType={MessageBarType.error} isMultiline={false}>
               {error}
             </MessageBar>
           )}
-          <button
-            type="submit"
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            onMouseDown={() => setIsActive(true)}
-            onMouseUp={() => setIsActive(false)}
-            style={{
-              ...buttonStyle,
-              ...(hover ? buttonHover : {}),
-              ...(isActive ? buttonActive : {}),
-            }}
-          >
-            Login
-          </button>
+          <StyledButton type="submit">Login</StyledButton>
           <div style={{ textAlign: 'center', marginTop: 10 }}>
-            <a onClick={() => navigate('/register')} style={{ color: '#0078d4', cursor: 'pointer' }}>Don't have an account yet? Sign up.</a>
+            <StyledLink onClick={() => navigate('/register')}>
+              Don't have an account yet? Sign up.
+            </StyledLink>
           </div>
         </Stack>
-      </form>
-    </div>
+      </StyledForm>
+    </Background>
   );
 }
 
