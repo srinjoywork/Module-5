@@ -1,10 +1,16 @@
 const User = require('../model/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { ZodError } = require('zod');
+const { registerSchema , loginSchema } = require('../validators/authValidation');
+
 
 // REGISTER CONTROLLER
 exports.register = async (req, res, next) => {
     try {
+        // Validate the request body using Zod
+        registerSchema.parse({ body: req.body });
+
         const { email, name, password } = req.body;
 
         // Check if user already exists
@@ -33,6 +39,14 @@ exports.register = async (req, res, next) => {
         });
 
     } catch (err) {
+        // Handle Zod validation error
+        if (err instanceof ZodError) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: err.errors,
+            });
+        }
+
         if (!err.statusCode) err.statusCode = 500;
         next(err);
     }
@@ -41,7 +55,11 @@ exports.register = async (req, res, next) => {
 // LOGIN CONTROLLER
 exports.login = async (req, res, next) => {
     const { email, password } = req.body;
+
     try {
+        // Validate request body
+        loginSchema.parse({ body: req.body });
+
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -63,7 +81,7 @@ exports.login = async (req, res, next) => {
                 userId: user._id.toString()
             },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '7d' }
         );
 
         res.status(200).json({
@@ -73,6 +91,13 @@ exports.login = async (req, res, next) => {
         });
 
     } catch (err) {
+        if (err instanceof ZodError) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: err.errors,
+            });
+        }
+
         if (!err.statusCode) err.statusCode = 500;
         next(err);
     }
