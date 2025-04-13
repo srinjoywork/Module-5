@@ -2,7 +2,12 @@ const { z } = require('zod');
 
 const registerSchema = z.object({
   body: z.object({
-    name: z.string().min(3, "Name must be at least 3 characters"),
+    name: z
+      .string()
+      .min(3, "Name must be at least 3 characters")
+      .refine((val) => isNaN(Number(val)), {
+        message: "Name cannot be only numbers",
+      }),
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(6, "Confirm Password must be at least 6 characters"),
